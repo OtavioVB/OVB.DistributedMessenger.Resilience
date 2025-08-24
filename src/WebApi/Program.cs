@@ -17,6 +17,7 @@ public sealed class Program
         builder.Services.AddSwaggerGen();
 
         builder.Services.AddSingleton(builder.Configuration.GetRequiredSection("ConsumerConfig").Get<ConsumerConfig>()!);
+        builder.Services.AddSingleton(builder.Configuration.GetRequiredSection("ProducerConfig").Get<ProducerConfig>()!);
 
         builder.Services.AddHostedService<CustomerCreatedConsumer>();
 

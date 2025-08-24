@@ -46,7 +46,7 @@ public sealed class CustomerCreatedConsumer : BackgroundService
             {
                 var @event = consumer.Consume(stoppingToken);
                 
-                await ExecuteHandleAsync(@event, stoppingToken);
+                await ExecuteHandlingToDlqAsync(@event, stoppingToken);
             }
 
             consumer.Close();
@@ -66,14 +66,16 @@ public sealed class CustomerCreatedConsumer : BackgroundService
                 {
                     EventType = nameof(CustomerCreatedConsumer),
                     GroupId = consumerConfig.GroupId,
-                    TopicName = TOPIC_NAME,
+                    TopicName = TOPIC_NAME_DLQ,
                 });
 
             while (!stoppingToken.IsCancellationRequested)
             {
                 var @event = consumerDlq.Consume(stoppingToken);
 
-                await ExecuteHandleAsync(@event, stoppingToken);
+                _logger.LogCritical("Message has been finished on dlq.");
+
+                await Task.Delay(100, stoppingToken);
             }
 
             consumerDlq.Close();
@@ -105,7 +107,9 @@ public sealed class CustomerCreatedConsumer : BackgroundService
             var message = new Message<string, string>()
             {
                 Key = @event.Message.Key, 
-                Value = @event.Message.Value
+                Value = @event.Message.Value,
+                Headers = @event.Message.Headers,
+                Timestamp = @event.Message.Timestamp
             };
 
             await producer.ProduceAsync(
