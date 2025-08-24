@@ -1,4 +1,7 @@
 
+using Confluent.Kafka;
+using WebApi.Consumers;
+
 namespace WebApi;
 
 public sealed class Program
@@ -7,15 +10,20 @@ public sealed class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
+        builder.Logging.AddConsole();
+
         builder.Services.AddControllers();
         builder.Services.AddEndpointsApiExplorer();
         builder.Services.AddSwaggerGen();
+
+        builder.Services.AddSingleton(builder.Configuration.GetRequiredSection("ConsumerConfig").Get<ConsumerConfig>()!);
+
+        builder.Services.AddHostedService<CustomerCreatedConsumer>();
 
         var app = builder.Build();
 
         app.UseSwagger();
         app.UseSwaggerUI();
-        app.UseAuthorization();
         app.MapControllers();
         app.Run();
     }

@@ -1,0 +1,9 @@
+###
+PRODUCER distributed-messenger
+topic: corporate.distributed-messenger.customer.created
+{
+    "firstName": "Otavio",
+    "lastName": "Carmanini",
+    "email": "otavio.carmanini@distributed-messenger.com.br",
+    "birthDate": "2006-06-26"
+}
